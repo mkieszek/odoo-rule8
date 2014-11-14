@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data noupdate="1">
+
+        <template id="przelewy24_acquirer_button">
+            <form t-if="acquirer.przelewy24_merchant_id" t-att-action="tx_url" method="post" target="_self">
+                <input type="hidden" name="p24_session_id" t-att-value="tx_values['session_id'] or '' " />
+				<input type="hidden" name="p24_id_sprzedawcy" t-att-value="tx_values['merchant_id'] or '0'" />
+				<input type="hidden" name="p24_kwota" t-att-value="tx_values['amount'] or '0.0'" />
+				<input type="hidden" name="p24_opis" t-att-value="tx_values['description'] or '' " />
+				<input type="hidden" name="p24_klient" t-att-value="tx_values['client_name'] or '' " />
+				<input type="hidden" name="p24_adres" t-att-value="tx_values['address1'] or '' " />
+				<input type="hidden" name="p24_kod" t-att-value="tx_values['zip'] or '' " />
+				<input type="hidden" name="p24_miasto" t-att-value="tx_values['city'] or '' " />
+				<input type="hidden" name="p24_kraj" t-att-value="tx_values['country'] or '' " />
+				<input type="hidden" name="p24_email" t-att-value="tx_values['email'] or '' " />
+				<input type="hidden" name="p24_language" t-att-value="tx_values['language'] or 'pl'" />
+				<input type="hidden" name="p24_return_url_ok" t-att-value="tx_values['return_url_ok'] or '' " />
+				<input type="hidden" name="p24_return_url_error" t-att-value="tx_values['return_url_error'] or '' " />
+				<input type="hidden" name="p24_crc" t-att-value="tx_values['crc'] or '' " />
+				                
+                <button type="submit" width="100px"
+                    t-att-class="submit_class">
+                    <img t-if="not submit_txt" src="/payment_przelewy24/static/src/img/przelewy24_icon.png"/>
+                    <span t-if="submit_txt"><t t-esc="submit_txt"/> <span class="fa fa-long-arrow-right"/></span>
+                </button>
+            </form>
+        </template>
+
+    </data>
+</openerp>
