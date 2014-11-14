@@ -6,6 +6,7 @@ import urlparse
 import md5
 import cherrypy
 import base64
+import uuid
 try:
     import simplejson as json
 except ImportError:
@@ -17,7 +18,8 @@ class AcquirerPaypal(osv.Model):
     _inherit = 'payment.acquirer'
     
     def _get_przelewy24_urls(self, cr, uid, environment, context=None):
-        """ Paypal URLS """
+        """ Paypal URLS 
+        Adres, pod któwy zostanie wysłany formularz"""
         if environment == 'prod':
             return {
                 'przelewy24_form_url': 'https://secure.przelewy24.pl/index.php',
@@ -42,15 +44,15 @@ class AcquirerPaypal(osv.Model):
     def przelewy24_form_generate_values(self, cr, uid, id, partner_values, tx_values, context=None):
         base_url = self.pool['ir.config_parameter'].get_param(cr, SUPERUSER_ID, 'web.base.url')
         acquirer = self.browse(cr, uid, id, context=context)
-        #pdb.set_trace()
         
         #ID sesji
-        session = 'test'
+        session = str(uuid.uuid4())
         
         przelewy24_tx_values = dict(tx_values)
+        #dane przekazywane w formularzu do wykolania przelewu
         przelewy24_tx_values.update({
             'item_name': tx_values['reference'],
-            'amount': int(tx_values['amount']*100),
+            'amount': int(tx_values['amount']*100),#w groszach
             'currency_code': tx_values['currency'] and tx_values['currency'].name or '',
             'address1': partner_values['address'],
             'city': partner_values['city'],
@@ -67,11 +69,7 @@ class AcquirerPaypal(osv.Model):
             'return_url_ok': '%s' % urlparse.urljoin(base_url, Przelewy24Controller.return_url_ok),
             'return_url_error': '%s' % urlparse.urljoin(base_url, Przelewy24Controller.return_url_error),
         })
-        #pdb.set_trace()
-        if acquirer.fees_active:
-            przelewy24_tx_values['handling'] = '%.2f' % przelewy24_tx_values.pop('fees', 0.0)
-        if przelewy24_tx_values.get('return_url'):
-            przelewy24_tx_values['custom'] = json.dumps({'return_url': '%s' % przelewy24_tx_values.pop('return_url')})
+
         return partner_values, przelewy24_tx_values
     
     def przelewy24_get_form_action_url(self, cr, uid, id, context=None):
